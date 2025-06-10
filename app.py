@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 
 # Load model
-model = pickle.load(open("personality_model.pkl", "rb"))
+model = pickle.load(open("model.pkl", "rb"))
 
 # Daftar fitur yang digunakan
 selected_features = [
