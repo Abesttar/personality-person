@@ -1,63 +1,68 @@
+# app.py
 import streamlit as st
+from streamlit_lottie import st_lottie
 import pandas as pd
 import numpy as np
 import pickle
+import json
 import requests
-from streamlit_lottie import st_lottie
+from sklearn.ensemble import RandomForestClassifier
 
-# Fungsi untuk memuat animasi dari URL
-def load_lottie_url(url):
-    response = requests.get(url)
-    if response.status_code != 200:
+st.set_page_config(page_title="Prediksi Kepribadian", layout="centered")
+
+# Fungsi load animasi dari URL
+
+def load_lottie_url(url: str):
+    r = requests.get(url)
+    if r.status_code != 200:
         return None
-    return response.json()
+    return r.json()
 
-# Animasi Lottie
-intro_animation = load_lottie_url("https://lottie.host/531f8358-95c0-48e9-8029-9385c3e2b82a/dwPDsRfCgG.json")
-st_lottie(intro_animation, height=250)
-
-st.title("Prediksi Kepribadian: Introvert atau Extrovert")
-
-st.markdown("""
-Gunakan slider di bawah ini untuk memasukkan kebiasaan dan preferensi Anda, lalu klik "Prediksi" untuk mengetahui kepribadian Anda berdasarkan model machine learning.
-""")
+# Load animasi dari LottieFiles
+intro_animation = load_lottie_url("https://assets1.lottiefiles.com/packages/lf20_qp1q7mct.json")
 
 # Load model
 with open("model.pkl", "rb") as file:
     model = pickle.load(file)
 
+# Header aplikasi
+st.title("Prediksi Tipe Kepribadian Anda")
+
+# Tampilkan animasi
+st_lottie(intro_animation, height=250)
+
+st.markdown("Silakan sesuaikan preferensi Anda di bawah ini:")
+
 # Sidebar input
-st.sidebar.header("Input Fitur Pengguna")
-time_alone = st.sidebar.slider("Waktu dihabiskan sendiri (0-15)", 0, 15, 5)
-stage_fear = st.sidebar.slider("Tingkat ketakutan tampil di depan umum (0-15)", 0, 15, 5)
-social_event = st.sidebar.slider("Kehadiran di acara sosial (0-15)", 0, 15, 5)
-going_out = st.sidebar.slider("Frekuensi keluar rumah (0-15)", 0, 15, 5)
-drain_social = st.sidebar.slider("Tingkat lelah setelah sosialisasi (0-15)", 0, 15, 5)
-friends_size = st.sidebar.slider("Ukuran lingkaran pertemanan (0-15)", 0, 15, 5)
-post_freq = st.sidebar.slider("Frekuensi memposting di media sosial (0-15)", 0, 15, 5)
+Time_spent_Alone = st.slider("Waktu sendirian (0-15)", 0, 15, 5)
+Stage_fear = st.slider("Ketakutan tampil di depan umum (0-15)", 0, 15, 5)
+Social_event_attendance = st.slider("Kehadiran di acara sosial (0-15)", 0, 15, 5)
+Going_outside = st.slider("Frekuensi keluar rumah (0-15)", 0, 15, 5)
+Drained_after_socializing = st.slider("Kelelahan setelah bersosialisasi (0-15)", 0, 15, 5)
+Friends_circle_size = st.slider("Ukuran lingkaran pertemanan (0-15)", 0, 15, 5)
+Post_frequency = st.slider("Frekuensi posting di media sosial (0-15)", 0, 15, 5)
 
-# Dataframe input pengguna
-user_input = pd.DataFrame({
-    'Time_spent_Alone': [time_alone],
-    'Stage_fear': [stage_fear],
-    'Social_event_attendance': [social_event],
-    'Going_outside': [going_out],
-    'Drained_after_socializing': [drain_social],
-    'Friends_circle_size': [friends_size],
-    'Post_frequency': [post_freq]
-})
+# Prediksi
+if st.button("Prediksi Kepribadian"):
+    input_data = pd.DataFrame({
+        "Time_spent_Alone": [Time_spent_Alone],
+        "Stage_fear": [Stage_fear],
+        "Social_event_attendance": [Social_event_attendance],
+        "Going_outside": [Going_outside],
+        "Drained_after_socializing": [Drained_after_socializing],
+        "Friends_circle_size": [Friends_circle_size],
+        "Post_frequency": [Post_frequency]
+    })
 
-# Tombol prediksi
-if st.button("Prediksi"):
-    result = model.predict(user_input)[0]
-
+    result = model.predict(input_data)[0]
     if result == 0:
-        st.subheader("Hasil Prediksi: Introvert 🧘")
-        st.info("\"Jalani hidup Anda seperti yang Anda inginkan, bukan seperti cara masyarakat memberi tahu Anda.\"")
-        st.image("https://cdn-icons-png.flaticon.com/512/3606/3606750.png", width=150)
+        st.success("Hasil Prediksi: **Introvert**")
+        st.markdown("> _\"Jalani hidup Anda seperti yang Anda inginkan, bukan seperti cara masyarakat memberi tahu Anda.\"_")
+        st.image("https://cdn-icons-png.flaticon.com/512/1864/1864514.png", width=120)
     else:
-        st.subheader("Hasil Prediksi: Extrovert 🗣️")
-        st.success("\"Terkadang menjadi ekstrovert memanglah sangat menguntungkan.\"")
-        st.image("https://cdn-icons-png.flaticon.com/512/3606/3606762.png", width=150)
+        st.success("Hasil Prediksi: **Extrovert**")
+        st.markdown("> _\"Terkadang menjadi ekstrovert memanglah sangat menguntungkan.\"_")
+        st.image("https://cdn-icons-png.flaticon.com/512/1864/1864517.png", width=120)
 
-    st.markdown("Terima kasih telah menggunakan aplikasi prediksi kepribadian ini! 🙌")
+st.markdown("\n---\n")
+st.caption("Dibuat dengan ❤️ menggunakan Streamlit dan Machine Learning")
