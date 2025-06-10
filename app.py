@@ -4,7 +4,7 @@ import numpy as np
 import requests
 from streamlit_lottie import st_lottie
 
-# === Fungsi untuk memuat animasi Lottie === #
+# === Load Lottie Animation === #
 def load_lottie_url(url):
     try:
         r = requests.get(url)
@@ -15,16 +15,16 @@ def load_lottie_url(url):
     except:
         return None
 
-# === Load model === #
+# === Load trained model === #
 with open("model.pkl", "rb") as file:
     model = pickle.load(file)
 
-# === Judul & Animasi === #
-st.set_page_config(page_title="Prediksi Kepribadian", layout="wide")
-st.markdown("<h1 style='text-align: center; color: #4B9CD3;'>🔮 Prediksi Kepribadian Kamu 🔍</h1>", unsafe_allow_html=True)
+# === Page configuration === #
+st.set_page_config(page_title="Personality Prediction", layout="wide")
+st.markdown("<h1 style='text-align: center; color: #4B9CD3;'>🧠 Personality Type Predictor</h1>", unsafe_allow_html=True)
 st.write("")
 
-# === Tampilkan Lottie === #
+# === Lottie Header === #
 with st.container():
     col1, col2 = st.columns([2, 3])
     with col1:
@@ -32,40 +32,37 @@ with st.container():
         if lottie:
             st_lottie(lottie, height=230)
     with col2:
-        st.markdown("### 📌 Masukkan kebiasaan dan kepribadianmu:")
-        st.write("Silakan isi beberapa pertanyaan berikut dan lihat apakah kamu termasuk **Introvert** atau **Ekstrovert**! 🚀")
+        st.markdown("### 🔍 Answer a few questions to discover your personality type!")
+        st.write("This app helps you identify whether you lean towards being an **Introvert** or **Extrovert** based on your daily habits and social preferences.")
 
-# === Input User === #
+# === User Inputs === #
 st.markdown("---")
-st.markdown("## 🧠 Jawab pertanyaan berikut:")
+st.markdown("## 📋 Please fill in the details below:")
 
 col1, col2 = st.columns(2)
-
 with col1:
-    alone = st.slider("🧘 Waktu Sendiri per Hari (jam)", 0, 15, 5)
-    fear = st.slider("😰 Takut Bicara di Depan Umum (0=santai, 10=takut)", 0, 10, 5)
-    event = st.slider("🎉 Kehadiran Acara Sosial (0=sangat jarang, 10=sering)", 0, 15, 7)
-
+    time_alone = st.slider("🕒 Hours spent alone daily", 0, 20, 5)
+    stage_fear = st.slider("🎤 Fear of public speaking (0 = very confident, 20 = extremely fearful)", 0, 20, 10)
+    social_events = st.slider("🎊 Attendance at social events (0 = never, 20 = very often)", 0, 20, 10)
 with col2:
-    outside = st.slider("🌳 Sering Keluar Rumah? (0=jarang, 10=sering)", 0, 15, 5)
-    drained = st.slider("🥱 Lelah Setelah Sosialisasi? (0=tidak, 10=banget)", 0, 15, 5)
-    circle = st.slider("👥 Besarnya Lingkaran Pertemanan (0=sedikit, 10=banyak)", 0, 15, 5)
-    post = st.slider("📱 Frekuensi Posting di Media Sosial", 0, 15, 5)
+    going_outside = st.slider("🚶 Frequency of going outside (0 = rarely, 20 = daily)", 0, 20, 10)
+    drained = st.slider("😫 Feeling drained after socializing (0 = never, 20 = always)", 0, 20, 10)
+    friend_circle = st.slider("👫 Size of friend circle (0 = small, 20 = very large)", 0, 20, 10)
+    post_freq = st.slider("📱 Frequency of social media posting", 0, 20, 10)
 
-# === Prediksi === #
-if st.button("🔍 Prediksi Kepribadian Saya"):
-    input_data = np.array([[alone, fear, event, outside, drained, circle, post]])
-    prediction = model.predict(input_data)[0]
+# === Prediction Output === #
+if st.button("🔎 Predict My Personality"):
+    user_input = np.array([[time_alone, stage_fear, social_events, going_outside, drained, friend_circle, post_freq]])
+    prediction = model.predict(user_input)[0]
 
     st.markdown("---")
-    if prediction == 0:
-        st.success("🌙 **Kamu cenderung seorang Introvert!**")
-        st.info("💬 *“Jalani hidup Anda seperti yang Anda inginkan, bukan seperti cara masyarakat memberi tahu Anda.”*")
+    if prediction == 1:
+        st.success("🌙 **You are likely an Introvert!**")
+        st.info("\"Live life the way you want to, not the way society tells you.\"")
         st.image("https://cdn-icons-png.flaticon.com/512/8090/8090401.png", width=120)
     else:
-        st.success("🌞 **Kamu cenderung seorang Ekstrovert!**")
-        st.info("💬 *“Terkadang menjadi ekstrovert memanglah sangat menguntungkan.”*")
+        st.success("🌞 **You are likely an Extrovert!**")
+        st.info("\"Sometimes being an extrovert is a huge advantage.\"")
         st.image("https://cdn-icons-png.flaticon.com/512/4111/4111123.png", width=120)
 
-    st.markdown("## 🎯 Terima kasih telah mencoba! Jangan lupa bagikan hasilmu ✨")
-
+    st.markdown("### 🎯 Thank you for using this app! Feel free to share your result.")
