@@ -4,7 +4,13 @@ import numpy as np
 import joblib
 
 # Judul aplikasi
-st.title("Prediksi Kepribadian: Introvert atau Extrovert")
+st.title("🔮 Prediksi Kepribadian: Introvert atau Extrovert")
+
+# Deskripsi singkat
+st.markdown("""
+Selamat datang di aplikasi prediksi kepribadian! 🎭  
+Isi karakteristikmu di sisi kiri dan lihat apakah kamu lebih cenderung Introvert atau Extrovert.
+""")
 
 # Load model dan encoder
 try:
@@ -14,7 +20,7 @@ except FileNotFoundError:
     st.error("❌ File model.pkl atau label_encoder.pkl tidak ditemukan. Pastikan file sudah diunggah.")
     st.stop()
 
-# Fitur yang digunakan untuk prediksi
+# Fitur yang digunakan
 features = [
     'Time_spent_Alone',
     'Stage_fear',
@@ -25,8 +31,8 @@ features = [
     'Post_frequency'
 ]
 
-# Sidebar untuk input pengguna
-st.sidebar.header("Input Karakteristik Pribadi")
+# Sidebar input
+st.sidebar.header("📝 Masukkan Karakteristik Diri Kamu")
 user_input = {}
 for feature in features:
     user_input[feature] = st.sidebar.slider(
@@ -37,16 +43,20 @@ for feature in features:
 input_df = pd.DataFrame([user_input])
 
 # Tampilkan input pengguna
-st.subheader("Data Input")
+st.subheader("📊 Data yang Kamu Masukkan")
 st.write(input_df)
 
-# Prediksi dengan model
+# Prediksi
 prediction = model.predict(input_df)[0]
 predicted_label = le.inverse_transform([prediction])[0]
 
 # Tampilkan hasil prediksi
-st.subheader("Hasil Prediksi")
+st.subheader("🧠 Hasil Prediksi Kepribadian")
 if predicted_label == "Introvert":
-    st.success("🧠 Hasil Prediksi: Kamu cenderung **Introvert**.")
+    st.success("🌙 Kamu cenderung **Introvert**")
+    st.markdown("> _Jalani hidup Anda seperti yang Anda inginkan, bukan seperti cara masyarakat memberi tahu Anda._")
+elif predicted_label == "Extrovert":
+    st.success("🌞 Kamu cenderung **Extrovert**")
+    st.markdown("> _Terkadang menjadi ekstrovert memanglah sangat menguntungkan._")
 else:
-    st.success("🎉 Hasil Prediksi: Kamu cenderung **Extrovert**.")
+    st.warning("Hasil prediksi tidak dikenali.")
