@@ -1,12 +1,21 @@
 import streamlit as st
 import pandas as pd
-import pickle
+import numpy as np
+import joblib
 
-# Load model
-model = pickle.load(open("model.pkl", "rb"))
+# Judul aplikasi
+st.title("Prediksi Kepribadian: Introvert atau Extrovert")
 
-# Daftar fitur yang digunakan
-selected_features = [
+# Load model dan encoder
+try:
+    model = joblib.load("model.pkl")
+    le = joblib.load("label_encoder.pkl")
+except FileNotFoundError:
+    st.error("❌ File model.pkl atau label_encoder.pkl tidak ditemukan. Pastikan file sudah diunggah.")
+    st.stop()
+
+# Fitur yang digunakan untuk prediksi
+features = [
     'Time_spent_Alone',
     'Stage_fear',
     'Social_event_attendance',
@@ -16,20 +25,28 @@ selected_features = [
     'Post_frequency'
 ]
 
-st.set_page_config(page_title="Prediksi Kepribadian", page_icon="🧠")
-st.title("🧠 Prediksi Kepribadian: Introvert atau Extrovert")
-st.markdown("Masukkan skor (0–10) untuk masing-masing aspek berikut:")
-
-# Ambil input dari pengguna
+# Sidebar untuk input pengguna
+st.sidebar.header("Input Karakteristik Pribadi")
 user_input = {}
-for feature in selected_features:
-    user_input[feature] = st.slider(feature.replace("_", " "), 0, 10, 5)
+for feature in features:
+    user_input[feature] = st.sidebar.slider(
+        feature.replace("_", " "), min_value=0, max_value=20, value=5
+    )
 
-# Konversi ke DataFrame
+# Ubah input ke DataFrame
 input_df = pd.DataFrame([user_input])
 
-# Prediksi kepribadian
-if st.button("Prediksi"):
-    prediction = model.predict(input_df)[0]
-    st.success(f"Hasil Prediksi: **{prediction}**")
-    st.info("Extrovert cenderung nyaman bersosialisasi, sedangkan Introvert lebih suka refleksi pribadi.")
+# Tampilkan input pengguna
+st.subheader("Data Input")
+st.write(input_df)
+
+# Prediksi dengan model
+prediction = model.predict(input_df)[0]
+predicted_label = le.inverse_transform([prediction])[0]
+
+# Tampilkan hasil prediksi
+st.subheader("Hasil Prediksi")
+if predicted_label == "Introvert":
+    st.success("🧠 Hasil Prediksi: Kamu cenderung **Introvert**.")
+else:
+    st.success("🎉 Hasil Prediksi: Kamu cenderung **Extrovert**.")
