@@ -42,15 +42,15 @@ st.markdown("## 🧠 Jawab pertanyaan berikut:")
 col1, col2 = st.columns(2)
 
 with col1:
-    alone = st.slider("🧘 Waktu Sendiri per Hari (jam)", 0, 15, 5)
-    fear = st.slider("😰 Takut Bicara di Depan Umum (0=santai, 10=takut)", 0, 10, 5)
-    event = st.slider("🎉 Kehadiran Acara Sosial (0=sangat jarang, 10=sering)", 0, 15, 7)
+    alone = st.slider("🧘 Waktu Sendiri per Hari (jam)", 0, 20, 5)
+    fear = st.slider("😰 Takut Bicara di Depan Umum (0=santai, 20=takut)", 0, 20, 5)
+    event = st.slider("🎉 Kehadiran Acara Sosial", 0, 20, 7)
 
 with col2:
-    outside = st.slider("🌳 Sering Keluar Rumah? (0=jarang, 10=sering)", 0, 15, 5)
-    drained = st.slider("🥱 Lelah Setelah Sosialisasi? (0=tidak, 10=banget)", 0, 15, 5)
-    circle = st.slider("👥 Besarnya Lingkaran Pertemanan (0=sedikit, 10=banyak)", 0, 15, 5)
-    post = st.slider("📱 Frekuensi Posting di Media Sosial", 0, 15, 5)
+    outside = st.slider("🌳 Sering Keluar Rumah?", 0, 20, 5)
+    drained = st.slider("🥱 Lelah Setelah Sosialisasi?", 0, 20, 5)
+    circle = st.slider("👥 Besarnya Lingkaran Pertemanan", 0, 20, 5)
+    post = st.slider("📱 Frekuensi Posting di Media Sosial", 0, 20, 5)
 
 # === Prediksi === #
 if st.button("🔍 Prediksi Kepribadian Saya"):
@@ -68,4 +68,3 @@ if st.button("🔍 Prediksi Kepribadian Saya"):
         st.image("https://cdn-icons-png.flaticon.com/512/4111/4111123.png", width=120)
 
     st.markdown("## 🎯 Terima kasih telah mencoba! Jangan lupa bagikan hasilmu ✨")
-
