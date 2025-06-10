@@ -2,67 +2,62 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-from streamlit_lottie import st_lottie
 import requests
+from streamlit_lottie import st_lottie
 
-# Fungsi untuk mengambil animasi Lottie dari URL
+# Fungsi untuk memuat animasi dari URL
 def load_lottie_url(url):
-    r = requests.get(url)
-    if r.status_code != 200:
+    response = requests.get(url)
+    if response.status_code != 200:
         return None
-    return r.json()
+    return response.json()
+
+# Animasi Lottie
+intro_animation = load_lottie_url("https://lottie.host/531f8358-95c0-48e9-8029-9385c3e2b82a/dwPDsRfCgG.json")
+st_lottie(intro_animation, height=250)
+
+st.title("Prediksi Kepribadian: Introvert atau Extrovert")
+
+st.markdown("""
+Gunakan slider di bawah ini untuk memasukkan kebiasaan dan preferensi Anda, lalu klik "Prediksi" untuk mengetahui kepribadian Anda berdasarkan model machine learning.
+""")
 
 # Load model
 with open("model.pkl", "rb") as file:
     model = pickle.load(file)
 
-# Judul
-st.set_page_config(page_title="Prediksi Kepribadian", page_icon="🧠", layout="centered")
-st.title("🧠 Aplikasi Prediksi Kepribadian Manusia")
-st.markdown("Selamat datang! Aplikasi ini memprediksi apakah kamu **Introvert** atau **Extrovert** berdasarkan kebiasaanmu.")
-
-# Tambahkan animasi di bagian atas
-intro_animation = load_lottie_url("https://lottie.host/76aa15bb-c8f2-4b7b-ae64-113cb15a3f3a/BTVPFk1O5A.json")
-st_lottie(intro_animation, height=250)
-
-st.markdown("---")
-
-# Sidebar untuk input
-st.sidebar.header("Masukkan Karakteristik Anda")
-time_alone = st.sidebar.slider("Waktu yang dihabiskan sendirian (0-15)", 0, 15, 5)
-stage_fear = st.sidebar.slider("Tingkat ketakutan berbicara di depan umum (0-15)", 0, 15, 5)
-social_event = st.sidebar.slider("Frekuensi menghadiri acara sosial (0-15)", 0, 15, 5)
+# Sidebar input
+st.sidebar.header("Input Fitur Pengguna")
+time_alone = st.sidebar.slider("Waktu dihabiskan sendiri (0-15)", 0, 15, 5)
+stage_fear = st.sidebar.slider("Tingkat ketakutan tampil di depan umum (0-15)", 0, 15, 5)
+social_event = st.sidebar.slider("Kehadiran di acara sosial (0-15)", 0, 15, 5)
 going_out = st.sidebar.slider("Frekuensi keluar rumah (0-15)", 0, 15, 5)
-drained = st.sidebar.slider("Merasa lelah setelah bersosialisasi (0-15)", 0, 15, 5)
-friends_circle = st.sidebar.slider("Ukuran lingkaran pertemanan (0-15)", 0, 15, 5)
-post_frequency = st.sidebar.slider("Frekuensi memposting di media sosial (0-15)", 0, 15, 5)
+drain_social = st.sidebar.slider("Tingkat lelah setelah sosialisasi (0-15)", 0, 15, 5)
+friends_size = st.sidebar.slider("Ukuran lingkaran pertemanan (0-15)", 0, 15, 5)
+post_freq = st.sidebar.slider("Frekuensi memposting di media sosial (0-15)", 0, 15, 5)
 
-# Button untuk prediksi
-if st.sidebar.button("Prediksi"):
-    input_data = pd.DataFrame({
-        'Time_spent_Alone': [time_alone],
-        'Stage_fear': [stage_fear],
-        'Social_event_attendance': [social_event],
-        'Going_outside': [going_out],
-        'Drained_after_socializing': [drained],
-        'Friends_circle_size': [friends_circle],
-        'Post_frequency': [post_frequency]
-    })
+# Dataframe input pengguna
+user_input = pd.DataFrame({
+    'Time_spent_Alone': [time_alone],
+    'Stage_fear': [stage_fear],
+    'Social_event_attendance': [social_event],
+    'Going_outside': [going_out],
+    'Drained_after_socializing': [drain_social],
+    'Friends_circle_size': [friends_size],
+    'Post_frequency': [post_freq]
+})
 
-    prediction = model.predict(input_data)
-    predicted_label = "Introvert" if prediction[0] == 0 else "Extrovert"
+# Tombol prediksi
+if st.button("Prediksi"):
+    result = model.predict(user_input)[0]
 
-    st.markdown("---")
-    st.subheader("🔍 Hasil Prediksi Anda:")
-
-    if predicted_label == "Introvert":
-        st_lottie(load_lottie_url("https://lottie.host/cf3dbf1b-bdc5-49e4-b845-5a6cfce169b1/fJNkivX7uI.json"), height=300)
-        st.success("🌙 Kamu cenderung **Introvert**")
-        st.markdown("> _Jalani hidup Anda seperti yang Anda inginkan, bukan seperti cara masyarakat memberi tahu Anda._")
+    if result == 0:
+        st.subheader("Hasil Prediksi: Introvert 🧘")
+        st.info("\"Jalani hidup Anda seperti yang Anda inginkan, bukan seperti cara masyarakat memberi tahu Anda.\"")
+        st.image("https://cdn-icons-png.flaticon.com/512/3606/3606750.png", width=150)
     else:
-        st_lottie(load_lottie_url("https://lottie.host/3dfae621-53c2-4e4d-bb2d-f89889e54e5f/1ALPM3Ct29.json"), height=300)
-        st.success("🌞 Kamu cenderung **Extrovert**")
-        st.markdown("> _Terkadang menjadi ekstrovert memanglah sangat menguntungkan._")
+        st.subheader("Hasil Prediksi: Extrovert 🗣️")
+        st.success("\"Terkadang menjadi ekstrovert memanglah sangat menguntungkan.\"")
+        st.image("https://cdn-icons-png.flaticon.com/512/3606/3606762.png", width=150)
 
-    st.markdown("---")
-    st.info("Catatan: Prediksi ini berdasarkan data dan model Machine Learning. Gunakan sebagai referensi, bukan sebagai penilaian mutlak.")
+    st.markdown("Terima kasih telah menggunakan aplikasi prediksi kepribadian ini! 🙌")
